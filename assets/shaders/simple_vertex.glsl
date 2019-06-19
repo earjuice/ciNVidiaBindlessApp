@@ -115,5 +115,5 @@ void main()
   oColor.b = iColor.b * b;
   oColor.a = iColor.a;
   oUV.x = u;
-  oUV.y = v;
+  oUV.y = 1.f-v;
 }
