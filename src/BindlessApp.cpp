@@ -295,19 +295,17 @@ void BindlessApp::InitBindlessTextures()
 		fileName[11] = 0;
 		strcat(fileName, Num);
 		strcat(fileName, ".dds");
-		ci::app::console() << fileName << std::endl;
-		//string flPathStr = "textures/V02.JPG";
-		ci::fs::path fnPath = fileName;//flPathStr;
-		ci::app::console() << fnPath << std::endl;
-		auto& dsource = ci::app::loadAsset(fnPath);
-		m_textureRefs[i] = ci::gl::Texture2d::createFromDds(dsource);
 
-		m_textureIds[i] = m_textureRefs->get()->getTarget();
-		glBindTexture(GL_TEXTURE_2D, m_textureIds[i]);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		try {
+			m_textureRefs[i] = ci::gl::Texture2d::createFromDds(ci::app::loadAsset(ci::fs::path(fileName)), gl::Texture2d::Format().internalFormat( GL_RGBA ).wrapS(GL_REPEAT).wrapT(GL_REPEAT).magFilter(GL_NEAREST).minFilter(GL_NEAREST).mipmap(false));
+		}
+		catch (ci::Exception& e) {
+			//CI_LOG_EXCEPTION("failed to create texture from DDS file", e);
+			ci::app::console() << "failed to create texture from DDS file" << &e << std::endl;
+			quit();
+		}
+		m_textureIds[i] = m_textureRefs[i]->getId();
+		m_textureRefs[i]->bind(m_textureIds[i]);
 
 		m_textureHandles[i] = glGetTextureHandleNV(m_textureIds[i]);
 		glMakeTextureHandleResidentNV(m_textureHandles[i]);
